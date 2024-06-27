@@ -1,10 +1,12 @@
 import './App.css';
-import Header from "./components/Header"
+// import Header from "./components/Header"
+import Loginsignup from './components/LoginSignup';
 
 function App() {
   return (
     <div>
-      <Header />
+      
+      <Loginsignup />
     </div>
   )
 
