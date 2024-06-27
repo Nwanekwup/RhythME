@@ -101,5 +101,10 @@
     width: 30px;
     height: 30px;
     margin-right: 10px;
-    background: transparent;
+}
+
+.email-icon{
+    width: 30px;
+    height: 30px;
+    margin-right: 15px;
 }
