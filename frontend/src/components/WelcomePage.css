@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
-  background: linear-gradient(to right, #7b4397, #dc2430); /* Purple and reddish gradient */
+  background: linear-gradient(to right, #7b4397, #dc2430); 
   font-family: 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
@@ -52,23 +52,23 @@ body {
 }
 
 .primary-btn {
-  background-color: #7b4397; /* Purple */
+  background-color: #7b4397; 
   color: white;
   margin-right: 10px;
 }
 
 .primary-btn:hover {
-  background-color: #6a2a88; /* Darker purple */
+  background-color: #6a2a88; 
 }
 
 .secondary-btn {
-  background-color: #dc2430; /* Complementary reddish color */
+  background-color: #dc2430; 
   color: white;
   margin-left: 10px;
 }
 
 .secondary-btn:hover {
-  background-color: #c21b28; /* Darker reddish color */
+  background-color: #c21b28; 
 }
 
 .welcome-footer {

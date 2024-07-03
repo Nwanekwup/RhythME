@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import './SignupPage.css';
 const SignupPage = () => {
     const [formData, setFormData] = useState({
@@ -21,9 +21,9 @@ const SignupPage = () => {
             return;
         }
         try {
-            const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-
-            const response = await fetch(`${backendUrlAccess}/signup`, {
+            const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
+            console.log(`${backendUrl}/signup`);
+            const response = await fetch(`${backendAddress}/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -33,11 +33,17 @@ const SignupPage = () => {
                     email: formData.email,
                     password: formData.password })
             });
+            const data = await response.json();
 
-            console.log('User signed up successfully:', response.data);
-            navigate('/home');
+            if (response.ok) {
+                alert("User signed up succefully. Please check your email and verify using the link provided")
+                navigate('/login');
+            } else {
+                alert(data.message || "An error occured during signup. ")
+            }
         } catch (error) {
             console.error('Error signing up:', error);
+            alert("Error signing up. Please try again.")
         }
     };
     

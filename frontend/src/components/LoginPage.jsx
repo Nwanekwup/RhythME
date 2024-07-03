@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-// import { UserContext } from '../UserContext.js';
 import "./LoginPage.css";
 const LoginPage = () => {
     const [formData, setFormData] = useState({ username: "", password: "" });
@@ -12,28 +11,26 @@ const LoginPage = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };    
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const backendUrlAccess = import.meta.env.VITE_BACKEND_ADDRESS;
-
-      const response = await fetch(`${backendUrlAccess}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-        }),
-        credentials: "include",
-      }).then((response) => response.json());
-      localStorage.setItem("token", response.token);
-      navigate("/welcome");
-    } catch (error) {
-      // handle log in failure case
-      alert("Login failed");
-    }
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+          const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
+          const response = await fetch(`${backendAddress}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: formData.username,
+              password: formData.password,
+            }),
+            credentials: "include",
+          }).then((response) => response.json());
+          localStorage.setItem("token", response.token);
+          navigate("/home");
+        } catch (error) {
+          // handle log in failure case
+          alert("Login failed: ");
+        }
+      };
 
   return (
     <div className="loginform-container">
