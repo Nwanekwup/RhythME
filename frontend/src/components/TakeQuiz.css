@@ -22,7 +22,7 @@
 }
 
 .answer-button:hover {
-  background-color: rgb(123, 56, 174);
+  background-color: rgb(134, 56, 194);
 }
 
 .next-button {
@@ -37,5 +37,5 @@
 }
 
 .next-button:hover {
-  background-color: rgb(132, 47, 198);
+  background-color: rgb(134, 56, 194);
 }
