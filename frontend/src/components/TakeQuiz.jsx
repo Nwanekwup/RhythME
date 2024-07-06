@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./TakeQuiz.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const questions = [
   {
@@ -26,15 +26,23 @@ const questions = [
 ];
 
 const TakeQuiz = () => {
+  const { userId } = useParams();
+  const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
 
   const handleNextClick = () => {
     setCurrentQuestion(currentQuestion + 1);
+    answers.push();
   };
 
   const handleAnswerClick = (answer) => {
     setAnswers([...answers, answer]);
+  };
+
+  const handleSubmit = async (e) => {
+    for (let answer in answers) {
+    }
   };
 
   return (
@@ -63,6 +71,11 @@ const TakeQuiz = () => {
       {currentQuestion < questions.length - 1 && (
         <button className="next-button" onClick={handleNextClick}>
           Next
+        </button>
+      )}
+      {currentQuestion === questions.length - 1 && (
+        <button className="submit-button" onClick={handleSubmit}>
+          Submit
         </button>
       )}
     </div>
