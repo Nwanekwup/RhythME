@@ -42,7 +42,7 @@ body {
   margin-bottom: 40px;
 }
 
-.primary-btn, .secondary-btn {
+.welcome-login, .welcome-signup {
   padding: 15px 30px;
   font-size: 1.1em;
   border: none;
@@ -51,23 +51,23 @@ body {
   transition: background-color 0.3s;
 }
 
-.primary-btn {
+.welcome-login {
   background-color: #7b4397; 
   color: white;
   margin-right: 10px;
 }
 
-.primary-btn:hover {
+.welcome-login:hover {
   background-color: #6a2a88; 
 }
 
-.secondary-btn {
-  background-color: #dc2430; 
+.welcome-signup {
+  background-color: #a2293f; 
   color: white;
   margin-left: 10px;
 }
 
-.secondary-btn:hover {
+.welcome-signup:hover {
   background-color: #c21b28; 
 }
 
