@@ -12,15 +12,15 @@ function App() {
     <Router>
       <div>
         <Routes>
-          <Route path="/" element={<WelcomePage />} />
-          <Route path="/home" element={<Homepage />} />
+          <Route index path="/" element={<WelcomePage />} />
+          <Route path="/home/:userId" element={<Homepage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/take-quiz" element={<TakeQuiz />} />
+          <Route path="/take-quiz/:userId" element={<TakeQuiz />} />
         </Routes>
       </div>
     </Router>
   );
-}
+};
 
 export default App;

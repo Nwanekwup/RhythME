@@ -25,6 +25,10 @@
   background-color: rgb(123, 56, 174);
 }
 
+.answer-button:focus {
+  background-color: rgb(134, 56, 194);
+}
+
 .next-button {
   background-color: #caa4f0;
   color: #fff;
@@ -38,4 +42,19 @@
 
 .next-button:hover {
   background-color: rgb(132, 47, 198);
+}
+
+.submit-button {
+  background-color: #caa4f0;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  width: 100%;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: rgb(134, 56, 194);
 }

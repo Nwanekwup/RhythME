@@ -1,10 +1,6 @@
-import React from 'react';
+import React, { useRef, useState } from "react";
 import "./TakeQuiz.css";
-<<<<<<< Updated upstream
-import { useNavigate } from 'react-router-dom';
-=======
 import { useNavigate, useParams } from "react-router-dom";
-
 
 const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
 const questions = [
@@ -29,23 +25,14 @@ const questions = [
     answers: [5, 4, 3, 2, 1],
   },
 ];
->>>>>>> Stashed changes
 
 const TakeQuiz = () => {
-    
-    return (
-        <div className="quiz-container">
-            <h1>Music Personality Quiz</h1>
-            <p>Which of the following best describes your mood today?</p>
-            <div className="answer-options">
-                <button className="answer-button">Happy and Energized</button>
-                <button className="answer-button">Relaxed and Calm</button>
-                <button className="answer-button">Anxious and Overwhelmed</button>
-            </div>
-            <button className="next-button">Next</button>
+  const { userId } = useParams();
+  const navigate = useNavigate();
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [answeredQuestions, setQuestion] = useState([]);
 
-<<<<<<< Updated upstream
-=======
   const handleNextClick = () => {
     setCurrentQuestion(currentQuestion + 1);
   };
@@ -74,6 +61,7 @@ const TakeQuiz = () => {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         navigate(`/home/${data.userId}`);
       }
     } catch (error) {
@@ -89,8 +77,32 @@ const TakeQuiz = () => {
       {questions[currentQuestion] && (
         <div className="option-question">
           <h3>{questions[currentQuestion].question}</h3>
->>>>>>> Stashed changes
         </div>
-    )
-}
+      )}
+      {questions[currentQuestion] && (
+        <div className="answer-options">
+          {questions[currentQuestion].answers.map((answer, index) => (
+            <button
+              key={answer}
+              className="answer-button"
+              onClick={() => handleAnswerClick(answer)}
+            >
+              {answer}
+            </button>
+          ))}
+        </div>
+      )}
+      {currentQuestion < questions.length - 1 && (
+        <button className="next-button" onClick={handleNextClick}>
+          Next
+        </button>
+      )}
+      {currentQuestion === questions.length - 1 && (
+        <button className="submit-button" onClick={handleSubmit}>
+          Submit
+        </button>
+      )}
+    </div>
+  );
+};
 export default TakeQuiz;

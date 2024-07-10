@@ -1,24 +1,20 @@
 import React from 'react';
 import '../App.css';
 import Header from "./Header"
+import { useNavigate, useParams } from "react-router-dom";
+import "./Homepage.css";
 
 
 function Homepage() {
-<<<<<<< Updated upstream
-=======
   const { userId } = useParams();
   const navigate = useNavigate();
 
   const handleLogOut = () => {
     navigate('/');
   }
->>>>>>> Stashed changes
   return (
-    <div>
+    <div className="homepage-container">
       <Header />
-<<<<<<< Updated upstream
-      <p>This is the homepage.</p>
-=======
       <div className="sidebar-container">
         <div className="profile-icon-container">
           <img src="profile-icon.png" alt="Profile Icon" />
@@ -36,10 +32,11 @@ function Homepage() {
           <i className="fas fa-music">Find your match</i>
         </button>
       </div>
->>>>>>> Stashed changes
     </div>
   )
 
 }
 
 export default Homepage;
+
+

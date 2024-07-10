@@ -14,8 +14,24 @@ datasource db {
 }
 
 model User {
-  id              Int       @id @default(autoincrement())
-  username        String    @unique
-  email           String    @unique
-  password        String
+  id         Int          @id @default(autoincrement())
+  username   String       @unique
+  email      String       @unique
+  password   String
+  UserAnswer UserAnswer[]
+}
+
+model UserAnswer {
+  id      Int                 @id @default(autoincrement())
+  user    User                @relation(fields: [userId], references: [id])
+  answers QuestionAndAnswer[]
+  userId  Int
+}
+
+model QuestionAndAnswer {
+  id           Int         @id @default(autoincrement())
+  question     String
+  answer       String
+  UserAnswer   UserAnswer? @relation(fields: [userAnswerId], references: [id])
+  userAnswerId Int?
 }
