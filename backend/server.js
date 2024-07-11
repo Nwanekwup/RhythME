@@ -110,23 +110,19 @@ app.post("/verify-email", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
-
 app.post("/submit-answers", async (req, res) => {
-  const { userId, answers, questions } = req.body;
-  console.log(userId);
-  console.log(answers);
   try {
+    const { userId, answers, questions, mood } = req.body;
+    console.log("Received Data:", { userId, answers, questions, mood });
     const user = await prisma.user.findUnique({ where: { id: +userId } });
     if (!user) {
+      console.error("User not found:", userId);
       return res.status(404).json({ error: "User not found" });
     }
     const userAnswer = await prisma.userAnswer.create({
       data: {
         userId: user.id,
+        mood,
         answers: {
           create: answers.map((answer, index) => ({
             question: questions[index],
@@ -137,7 +133,13 @@ app.post("/submit-answers", async (req, res) => {
     });
     res.status(201).json({ message: "Answers submitted successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("Internal Server Error", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
+
