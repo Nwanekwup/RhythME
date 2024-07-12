@@ -7,124 +7,72 @@ const questions = [
   {
     question: "I feel anxious most days",
     answers: [5, 4, 3, 2, 1],
+    mood: "Anxious",
   },
   {
     question: "I feel happy most days",
     answers: [5, 4, 3, 2, 1],
+    mood: "Happy",
   },
   {
     question: "I feel motivated most days",
     answers: [5, 4, 3, 2, 1],
+    mood: "Motivated",
   },
   {
     question: "I feel calm most days",
     answers: [5, 4, 3, 2, 1],
+    mood: "Calm",
   },
   {
     question: "I feel goofy most days",
     answers: [5, 4, 3, 2, 1],
+    mood: "Playful",
   },
   {
     question: "I feel energetic most days",
     answers: [5, 4, 3, 2, 1],
+    mood: "Energetic",
   },
   {
     question: "I feel confident most days",
     answers: [5, 4, 3, 2, 1],
+    mood: "Confident",
   },
   {
     question: "I feel creative most days",
     answers: [5, 4, 3, 2, 1],
+    mood: "Creative",
   },
   {
     question: "I feel focused most days",
     answers: [5, 4, 3, 2, 1],
+    mood: "Focused",
   },
   {
     question: "I feel stressed most days",
     answers: [5, 4, 3, 2, 1],
+    mood: "Stressed",
   },
   {
     question: "I feel romantic or in love most days",
     answers: [5, 4, 3, 2, 1],
+    mood: "Romantic",
   },
 ];
 
 // define moods and their corresponding score
 const determineMood = (answers) => {
-  const moodScores = {
-    Happy: 0,
-    Sad: 0,
-    Motivated: 0,
-    Unmotivated: 0,
-    Calm: 0,
-    Anxious: 0,
-    Playful: 0,
-    Serious: 0,
-    Energetic: 0,
-    Tired: 0,
-    Confident: 0,
-    Insecure: 0,
-    Creative: 0,
-    Uninspired: 0,
-    Focused: 0,
-    Distracted: 0,
-    Stressed: 0,
-    Peaceful: 0,
-    Romantic: 0,
-    NotRomantic: 0,
-  };
+  const moodScores = {}
+
+  questions.forEach((question) => {
+    moodScores[question.mood] = 0;
+  });
 
   // Map the questions to moods and update the scores
   answers.forEach((answer, index) => {
-    switch (index) {
-      case 0: // Anxiety Level
-        moodScores.Anxious += answer;
-        moodScores.Calm += 6 - answer;
-        break;
-      case 1: // Happiness
-        moodScores.Happy += answer;
-        moodScores.Sad += 6 - answer;
-        break;
-      case 2: // Motivation
-        moodScores.Motivated += answer;
-        moodScores.Unmotivated += 6 - answer;
-        break;
-      case 3: // Calmness
-        moodScores.Calm += answer;
-        moodScores.Anxious += 6 - answer;
-        break;
-      case 4: // Playfulness
-        moodScores.Playful += answer;
-        moodScores.Serious += 6 - answer;
-        break;
-      case 5: // Energy Levels
-        moodScores.Energetic += answer;
-        moodScores.Tired += 6 - answer;
-        break;
-      case 6: // Confidence
-        moodScores.Confident += answer;
-        moodScores.Insecure += 6 - answer;
-        break;
-      case 7: // Creativity
-        moodScores.Creative += answer;
-        moodScores.Uninspired += 6 - answer;
-        break;
-      case 8: // Focus
-        moodScores.Focused += answer;
-        moodScores.Distracted += 6 - answer;
-        break;
-      case 9: // Stress Levels
-        moodScores.Stressed += answer;
-        moodScores.Calm += 6 - answer;
-        break;
-      case 10: // Romantic Feelings
-        moodScores.Romantic += answer;
-        moodScores.NotRomantic += 6 - answer;
-        break;
-      default:
-        break;
-    }
+    const question = questions[index];
+    moodScores[question.mood] += answer;
   });
 
   //Determine the predominant mood
