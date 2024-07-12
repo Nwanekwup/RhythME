@@ -30,6 +30,11 @@
   background-color: rgb(134, 56, 194);
 }
 
+.answer-button.selected {
+  background-color: rgb(123, 56, 174); /* Highlight color */
+  color: #fff; /* Text color */
+}
+
 .navigation-buttons {
   display: flex;
   justify-content: space-between;

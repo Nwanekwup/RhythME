@@ -140,14 +140,17 @@ const TakeQuiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [answeredQuestions, setQuestion] = useState([]);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
 
   const handleNextClick = () => {
     setCurrentQuestion(currentQuestion + 1);
+    setSelectedAnswer(answers[currentQuestion + 1] || null);
   };
 
   const handlePreviousClick = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
+      setSelectedAnswer(answers[currentQuestion - 1] || null);
     }
   };
 
@@ -155,7 +158,11 @@ const TakeQuiz = () => {
     const updatedAnswers = [...answers];
     updatedAnswers[currentQuestion] = answer;
     setAnswers(updatedAnswers);
-    setQuestion([...answeredQuestions, questions[currentQuestion].question]);
+
+    const updatedQuestions = [...answeredQuestions];
+    updatedQuestions[currentQuestion] = questions[currentQuestion].question;
+    setQuestion(updatedQuestions);
+    setSelectedAnswer(answer);
   };
 
   const handleSubmit = async (e) => {
@@ -211,7 +218,9 @@ const TakeQuiz = () => {
           {questions[currentQuestion].answers.map((answer, index) => (
             <button
               key={answer}
-              className="answer-button"
+              className={`answer-button ${
+                selectedAnswer === answer ? "selected" : ""
+              }`}
               onClick={() => handleAnswerClick(answer)}
             >
               {answer}
