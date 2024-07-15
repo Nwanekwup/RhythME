@@ -1,18 +1,26 @@
-import React from "react";
-import "../App.css";
-import { useParams, useNavigate } from "react-router-dom";
-import Header from "./Header";
+import React from 'react';
+import '../App.css';
+import Header from "./Header"
+import { useNavigate, useParams } from "react-router-dom";
 import "./Homepage.css";
+
 
 function Homepage() {
   const { userId } = useParams();
   const navigate = useNavigate();
+
+  const handleLogOut = () => {
+    navigate('/');
+  }
   return (
     <div className="homepage-container">
       <Header />
       <div className="sidebar-container">
         <div className="profile-icon-container">
           <img src="profile-icon.png" alt="Profile Icon" />
+          <button className="log-out-btn" onClick={handleLogOut}>
+            Log Out
+          </button>
         </div>
       </div>
       <div className="main-content-container">
@@ -29,3 +37,5 @@ function Homepage() {
 }
 
 export default Homepage;
+
+

@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import "./TakeQuiz.css";
 import { useNavigate, useParams } from "react-router-dom";
 
+const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
 const questions = [
   {
     question: "I feel anxious most days",
@@ -51,7 +52,6 @@ const TakeQuiz = () => {
       questions: answeredQuestions,
     };
     try {
-      const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
       const response = await fetch(`${backendAddress}/submit-answers`, {
         method: "POST",
         headers: {
