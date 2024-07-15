@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import "./TakeQuiz.css";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -30,18 +30,42 @@ const TakeQuiz = () => {
   const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
+  const [answeredQuestions, setQuestion] = useState([]);
 
   const handleNextClick = () => {
     setCurrentQuestion(currentQuestion + 1);
-    answers.push();
   };
 
   const handleAnswerClick = (answer) => {
-    setAnswers([...answers, answer]);
+    const updatedAnswers = [...answers];
+    updatedAnswers[currentQuestion] = answer;
+    setAnswers(updatedAnswers);
+    setQuestion([...answeredQuestions, questions[currentQuestion].question]);
   };
 
   const handleSubmit = async (e) => {
-    for (let answer in answers) {
+    e.preventDefault();
+    const answersData = {
+      userId: userId,
+      answers: answers,
+      questions: answeredQuestions,
+    };
+    try {
+      const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
+      const response = await fetch(`${backendAddress}/submit-answers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(answersData),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        navigate(`/home/${data.userId}`);
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -57,7 +81,7 @@ const TakeQuiz = () => {
       )}
       {questions[currentQuestion] && (
         <div className="answer-options">
-          {questions[currentQuestion].answers.map((answer) => (
+          {questions[currentQuestion].answers.map((answer, index) => (
             <button
               key={answer}
               className="answer-button"

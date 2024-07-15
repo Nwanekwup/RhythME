@@ -114,3 +114,30 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+app.post("/submit-answers", async (req, res) => {
+  const { userId, answers, questions } = req.body;
+  console.log(userId);
+  console.log(answers);
+  try {
+    const user = await prisma.user.findUnique({ where: { id: +userId } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const userAnswer = await prisma.userAnswer.create({
+      data: {
+        userId: user.id,
+        answers: {
+          create: answers.map((answer, index) => ({
+            question: questions[index],
+            answer: `${answer}`,
+          })),
+        },
+      },
+    });
+    res.status(201).json({ message: "Answers submitted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
