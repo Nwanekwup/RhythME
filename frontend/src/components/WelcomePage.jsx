@@ -15,7 +15,7 @@ function WelcomePage () {
 
     return (
         <div className="welcome-page">
-            <h1>This is the welcome page!</h1>
+            <h1>Welcome to RhythME!</h1>
             <button className="welcome-login" onClick={handleLoginPage}>Login</button>
             <button className="welcome-signup" onClick={handleSignupPage}>Sign Up</button>
         </div>    

@@ -26,6 +26,7 @@ model UserAnswer {
   user    User                @relation(fields: [userId], references: [id])
   answers QuestionAndAnswer[]
   userId  Int
+  mood    String
 }
 
 model QuestionAndAnswer {
