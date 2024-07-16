@@ -6,9 +6,15 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { PrismaClient } = require("@prisma/client");
 const nodemailer = require("nodemailer");
+const querystring = require("querystring");
+const axios = require("axios");
+const getSpotifyAccessToken = require("./spotify");
 const app = express();
 
 const allowedOrigins = [process.env.FRONTEND_URL];
+const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
+const clientId = process.env.SPOTIFY_CLIENT_ID;
+const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
 app.use(
   cors({
@@ -24,9 +30,62 @@ app.use(
 );
 
 app.use(express.json());
+app.use(bodyParser.json());
+
 const prisma = new PrismaClient();
 
-app.use(bodyParser.json());
+app.get("/spotify-token", async (req, res) => {
+  const accessToken = await getSpotifyAccessToken();
+  if (accessToken) {
+    res.json({ accessToken });
+  } else {
+    res.status(500).json({ error: "Failed to fetch access token" });
+  }
+});
+
+app.get("/login", (req, res) => {
+  const scope = "user-read-private user-read-email";
+  const authUrl =
+    "https://accounts.spotify.com/authorize?" +
+    querystring.stringify({
+      response_type: 'code',
+      client_id: clientId,
+      scope: scope,
+      redirect_uri: redirectUri,
+    });
+  res.redirect(authUrl);
+});
+
+app.get("/callback", async (req, res) => {
+  const code = req.query.code || null;
+  const authOptions = {
+    url: "https://accounts.spotify.com/api/token",
+    form: {
+      code: code,
+      redirect_uri: redirectUri,
+      grant_type: "authorization_code",
+    },
+    headers: {
+      Authorization: "Basic " + (Buffer.from(clientId + ":" + clientSecret).toString("base64"))
+    },
+    json: true,
+  };
+
+  try {
+    const response = await axios.post(
+      authOptions.url,
+      querystring.stringify(authOptions.form),
+      { headers: authOptions.headers }
+    );
+    const accessToken = response.data.access_token;
+    const refreshToken = response.data.refresh_token;
+    res.redirect(
+      `${process.env.FRONTEND_URL}/callback#access_token=${accessToken}&refresh_token=${refreshToken}`
+    );
+  } catch (error) {
+    res.status(500).json({ error: "Failed to authenticate with Spotify" });
+  }
+});
 
 const transporter = nodemailer.createTransport({
   service: "Gmail",
@@ -142,4 +201,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
-
