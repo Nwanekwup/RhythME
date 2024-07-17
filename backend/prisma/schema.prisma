@@ -36,3 +36,11 @@ model QuestionAndAnswer {
   UserAnswer   UserAnswer? @relation(fields: [userAnswerId], references: [id])
   userAnswerId Int?
 }
+
+model Song {
+  id      Int      @id @default(autoincrement())
+  title   String
+  artist  String
+  mood    String
+  lyrics  String
+}
