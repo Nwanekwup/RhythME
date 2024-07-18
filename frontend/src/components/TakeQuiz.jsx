@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import "./TakeQuiz.css";
 import { useNavigate, useParams } from "react-router-dom";
+import ModalResult from "./ModalResult";
 
 const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
 const questions = [
@@ -89,6 +90,7 @@ const TakeQuiz = () => {
   const [answers, setAnswers] = useState([]);
   const [answeredQuestions, setQuestion] = useState([]);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [showModalResult, setShowModalResult] = useState(false)
 
   const handleNextClick = () => {
     setCurrentQuestion(currentQuestion + 1);
@@ -138,8 +140,7 @@ const TakeQuiz = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
-        navigate(`/home/${data.userId}`);
+        setShowModalResult(true);
       } else {
         const errorData = await response.json();
         console.error("Failed to submit answers:", errorData);
@@ -149,6 +150,15 @@ const TakeQuiz = () => {
       console.error("Error submitting answers:", error);
       alert("Error submitting answers.");
     }
+  };
+
+  const handleModalResultClose = () => {
+    setShowModalResult(false);
+  };
+
+  const handleContinue = () => {
+    setShowModalResult(false);
+    navigate(`/moodboard/${userId}`);
   };
 
   return (
@@ -193,6 +203,7 @@ const TakeQuiz = () => {
           </button>
         )}
       </div>
+      <ModalResult show={showModalResult} handleClose={handleModalResultClose} handleContinue={handleContinue}/>
     </div>
   );
 };

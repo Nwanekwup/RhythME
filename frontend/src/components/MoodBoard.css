@@ -1,0 +1,23 @@
+.moodboard-container {
+  padding: 20px;
+  text-align: center;
+}
+
+.moodboard-container h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.moodboard-container h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.moodboard-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.moodboard-container li {
+  margin: 5px 0;
+}

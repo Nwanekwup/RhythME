@@ -6,6 +6,7 @@ import SignupPage from "./components/SignupPage";
 import Homepage from "./components/Homepage";
 import WelcomePage from "./components/WelcomePage";
 import TakeQuiz from "./components/TakeQuiz";
+import MoodBoard from "./components/MoodBoard";
 import Callback from "./components/Callback";
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />  
           <Route path="/signup" element={<SignupPage />} /> 
           <Route path="/take-quiz/:userId" element={<TakeQuiz />} />
+          <Route path="moodboard/:userId" element={<MoodBoard />} />
           <Route path="/callback" element={<Callback />} /> 
         </Routes>
       </div>

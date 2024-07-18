@@ -138,26 +138,39 @@ app.post("/add-song", async (req, res) => {
   }
 });
 
-app.get("/recommendations", async (req, res) => {
-  const { mood } = req.query;
+app.get('/recommendations', async (req, res) => {
+  const { userId } = req.query;
 
   try {
+    console.log(`Fetching recommendations for userId: ${userId}`);
+    
+    const userAnswer = await prisma.userAnswer.findFirst({
+      where: { userId: +userId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!userAnswer) {
+      console.error(`User answer not found for userId: ${userId}`);
+      return res.status(404).json({ error: 'User answer not found' });
+    }
+
+    const mood = userAnswer.mood;
+    console.log(`Mood for userId ${userId}: ${mood}`);
+
     const songs = await prisma.song.findMany({
       where: { mood },
     });
-    res.json(songs);
-  } catch (error) {
-    console.error("Error fetching recommendations:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 
-const transporter = nodemailer.createTransport({
-  service: "Gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+    if (!songs.length) {
+      console.error(`No songs found for mood: ${mood}`);
+      return res.status(404).json({ error: 'No songs found for this mood' });
+    }
+
+    res.json({ mood, songs });
+  } catch (error) {
+    console.error('Error fetching recommendations:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 const sendVerificationEmail = async (email, username, token) => {
