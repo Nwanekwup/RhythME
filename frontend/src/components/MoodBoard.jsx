@@ -45,7 +45,10 @@ const MoodBoard = () => {
       <ul>
         {songs.map((song) => (
           <li key={song.id}>
-            {song.title} by {song.artist}
+            <div className="song-info">
+              <div className="song-title">{song.title}</div>
+              <div className="song-artist">by {song.artist}</div>
+            </div>
           </li>
         ))}
       </ul>

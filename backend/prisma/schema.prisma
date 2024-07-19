@@ -24,6 +24,7 @@ model User {
 model UserAnswer {
   id      Int                 @id @default(autoincrement())
   user    User                @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
   answers QuestionAndAnswer[]
   userId  Int
   mood    String
