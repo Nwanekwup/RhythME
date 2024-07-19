@@ -12,6 +12,11 @@ function Homepage() {
   const handleLogOut = () => {
     navigate('/');
   }
+
+  const handleSearchPage = () => {
+    navigate('/search');
+  }
+  
   return (
     <div className="homepage-container">
       <Header />
@@ -30,6 +35,12 @@ function Homepage() {
           onClick={() => navigate(`/take-quiz/${userId}`)}
         >
           <i className="fas fa-music">Find your match</i>
+        </button>
+        <button
+          className="find-music-btn"
+          onClick={handleSearchPage}
+        >
+          <i className="fas fa-search">Find Music Recommendations</i>
         </button>
       </div>
     </div>
