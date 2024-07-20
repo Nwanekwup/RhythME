@@ -36,7 +36,16 @@
   border-radius: 50%;
 }
 
-.take-quiz-btn {
+.buttons-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 500px;
+  margin-top: 20px;
+}
+
+.take-quiz-btn,
+.find-music-btn {
   background-color: rgb(80, 33, 33);
   color: #fff;
   border: none;
@@ -50,18 +59,22 @@
   justify-content: center;
   align-items: center;
   transition: transform 0.2s ease-in-out;
+  margin: 0 10px
 }
 
-.take-quiz-btn i {
+.take-quiz-btn i,
+.find-music-btn span {
   font-size: 24px;
   margin-right: 10px;
 }
 
-.take-quiz-btn:hover {
+.take-quiz-btn:hover,
+.find-music-btn:hover {
     background-color: #432154;
     transform: scale(1.1);
 }
-.take-quiz-btn:active {
+.take-quiz-btn:active,
+.find-music-btn:active {
     transform: scale(0.9);
     background-color: #5f495f2f;
 }
