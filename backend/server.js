@@ -278,18 +278,32 @@ app.post("/submit-answers", async (req, res) => {
 });
 
 app.get('/search', async (req, res) => {
-  const { query } = req.query;
+  const { query, moods } = req.query;
 
   try {
-    const songs = await prisma.song.findMany({
-      where: {
+    const moodArray = moods ? moods.split(',') : [];
+    const searchConditions = [];
+
+    if (query) {
+      searchConditions.push({
         OR: [
           { title: { contains: query, mode: 'insensitive' } },
           { artist: { contains: query, mode: 'insensitive' } },
-          { lyrics: { contains: query, mode: 'insensitive' } },
-          { mood: { contains: query, mode: 'insensitive' } },
-        ],
-      },
+          { lyrics: { contains: query, mode: 'insensitive' } }
+        ]
+      });
+    }
+
+    if (moodArray.length > 0) {
+      searchConditions.push({
+        OR: moodArray.map(mood => ({ mood: { equals: mood, mode: 'insensitive' } }))
+      });
+    }
+
+    const songs = await prisma.song.findMany({
+      where: {
+        AND: searchConditions
+      }
     });
 
     res.json(songs);

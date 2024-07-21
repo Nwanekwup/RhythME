@@ -12,11 +12,11 @@ function Homepage() {
 
   const handleLogOut = () => {
     navigate('/');
-  }
+  };
 
   const handleSearchPage = () => {
     navigate('/search');
-  }
+  };
 
   return (
     <div className="homepage-container">
