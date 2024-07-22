@@ -9,6 +9,7 @@ const nodemailer = require("nodemailer");
 const querystring = require("querystring");
 const axios = require("axios");
 const getSpotifyAccessToken = require("./spotify");
+const getLyrics = require('./musixmatch');
 const app = express();
 
 const allowedOrigins = [process.env.FRONTEND_URL];
@@ -87,6 +88,25 @@ app.get("/callback", async (req, res) => {
   }
 });
 
+app.get('/lyrics', async (req, res) => {
+  const { trackName, artistName } = req.query;
+
+  if (!trackName || !artistName) {
+    return res.status(400).json({ error: 'trackName and artistName are required' });
+  }
+
+  try {
+    const lyrics = await getLyrics(trackName, artistName);
+    if (lyrics) {
+      res.json({ lyrics });
+    } else {
+      res.status(404).json({ error: 'Lyrics not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
@@ -109,6 +129,7 @@ const sendVerificationEmail = async (email, username, token) => {
 app.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
   try {
+    console.log("Received signup request:", { username, email });
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {
@@ -127,6 +148,7 @@ app.post("/signup", async (req, res) => {
       .status(201)
       .json({ message: "User created. Please verify your email." });
   } catch (error) {
+    console.error("Error during signup:", error);
     res.status(500).json({ error: "User could not be created." });
   }
 });

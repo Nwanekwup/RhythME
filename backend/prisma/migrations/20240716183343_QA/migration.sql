@@ -2,6 +2,7 @@
 CREATE TABLE "UserAnswer" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
+    "mood" TEXT NOT NULL,
 
     CONSTRAINT "UserAnswer_pkey" PRIMARY KEY ("id")
 );
