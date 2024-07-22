@@ -15,18 +15,18 @@ function App() {
     <Router>
       <div>
         <Routes>
-          <Route index path="/" element={<WelcomePage />} /> 
-          <Route path="/home/:userId" element={<Homepage />} /> 
-          <Route path="/login" element={<LoginPage />} />  
-          <Route path="/signup" element={<SignupPage />} /> 
+          <Route index path="/" element={<WelcomePage />} />
+          <Route path="/home/:userId" element={<Homepage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route path="/take-quiz/:userId" element={<TakeQuiz />} />
           <Route path="moodboard/:userId" element={<MoodBoard />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/callback" element={<Callback />} /> 
+          <Route path="/callback" element={<Callback />} />
         </Routes>
       </div>
     </Router>
   );
-};
+}
 
 export default App;

@@ -10,7 +10,7 @@ const querystring = require("querystring");
 const axios = require("axios");
 const getSpotifyAccessToken = require("./spotify");
 const getLyrics = require("./musixmatch");
-const determineMoodFromLyrics = require('./moodAnalyzer');
+const determineMoodFromLyrics = require("./moodAnalyzer");
 const app = express();
 
 const allowedOrigins = [process.env.FRONTEND_URL];
@@ -138,20 +138,20 @@ app.post("/add-song", async (req, res) => {
   }
 });
 
-app.get('/recommendations', async (req, res) => {
+app.get("/recommendations", async (req, res) => {
   const { userId } = req.query;
 
   try {
     console.log(`Fetching recommendations for userId: ${userId}`);
-    
+
     const userAnswer = await prisma.userAnswer.findFirst({
       where: { userId: +userId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     if (!userAnswer) {
       console.error(`User answer not found for userId: ${userId}`);
-      return res.status(404).json({ error: 'User answer not found' });
+      return res.status(404).json({ error: "User answer not found" });
     }
 
     const mood = userAnswer.mood;
@@ -163,14 +163,22 @@ app.get('/recommendations', async (req, res) => {
 
     if (!songs.length) {
       console.error(`No songs found for mood: ${mood}`);
-      return res.status(404).json({ error: 'No songs found for this mood' });
+      return res.status(404).json({ error: "No songs found for this mood" });
     }
 
     res.json({ mood, songs });
   } catch (error) {
-    console.error('Error fetching recommendations:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error fetching recommendations:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
+});
+
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
 });
 
 const sendVerificationEmail = async (email, username, token) => {
@@ -188,6 +196,20 @@ app.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
   try {
     console.log("Received signup request:", { username, email });
+
+    const existingUserByUsername = await prisma.user.findUnique({
+      where: { username },
+    });
+    if (existingUserByUsername) {
+      return res.status(400).json({ error: "Username already taken" });
+    }
+
+    const existingUserByEmail = await prisma.user.findUnique({
+      where: { email },
+    });
+    if (existingUserByEmail) {
+      return res.status(400).json({ error: "Email already registered" });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {
@@ -277,52 +299,54 @@ app.post("/submit-answers", async (req, res) => {
   }
 });
 
-app.get('/search', async (req, res) => {
+app.get("/search", async (req, res) => {
   const { query, moods } = req.query;
 
   try {
-    const moodArray = moods ? moods.split(',') : [];
+    const moodArray = moods ? moods.split(",") : [];
     const searchConditions = [];
 
     if (query) {
       searchConditions.push({
         OR: [
-          { title: { contains: query, mode: 'insensitive' } },
-          { artist: { contains: query, mode: 'insensitive' } },
-          { lyrics: { contains: query, mode: 'insensitive' } }
-        ]
+          { title: { contains: query, mode: "insensitive" } },
+          { artist: { contains: query, mode: "insensitive" } },
+          { lyrics: { contains: query, mode: "insensitive" } },
+        ],
       });
     }
 
     if (moodArray.length > 0) {
       searchConditions.push({
-        OR: moodArray.map(mood => ({ mood: { equals: mood, mode: 'insensitive' } }))
+        OR: moodArray.map((mood) => ({
+          mood: { equals: mood, mode: "insensitive" },
+        })),
       });
     }
 
     const songs = await prisma.song.findMany({
       where: {
-        AND: searchConditions
-      }
+        AND: searchConditions,
+      },
     });
 
     res.json(songs);
   } catch (error) {
-    console.error('Error fetching search results:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error fetching search results:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-app.get('/moods', async (req, res) => {
+app.get("/moods", async (req, res) => {
   try {
     const moods = await prisma.song.findMany({
-      distinct: ['mood'],
+      distinct: ["mood"],
       select: { mood: true },
     });
-    res.json(moods.map(m => m.mood));
+    res.json(moods.map((m) => m.mood));
   } catch (error) {
-    console.error('Error fetching moods:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error fetching moods:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
