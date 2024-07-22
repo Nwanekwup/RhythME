@@ -43,6 +43,12 @@ const Search = () => {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   const toggleMood = (mood) => {
     setSelectedMoods((prev) =>
       prev.includes(mood) ? prev.filter((m) => m !== mood) : [...prev, mood]
@@ -58,6 +64,7 @@ const Search = () => {
             placeholder="Search for songs by title, artist, lyrics, or mood"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyPress={handleKeyPress}
           />
           <button onClick={handleSearch}>Search</button>
         </div>
