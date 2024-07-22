@@ -34,15 +34,17 @@ function Homepage() {
         <div className="buttons-container">
           <button
             className="take-quiz-btn"
-            onClick={() => navigate(`/take-quiz/${userId}`)}
+            onClick={() => navigate(`/take-quiz/${userId}`)} 
+            data-tooltip="Take the personality quiz to get personalized music recommendations!"
           >
-            <i className="fas fa-music">Find your match</i>
+            <i className="fas fa-music">Let's match your mood</i>
           </button>
           <button
             className="find-music-btn"
             onClick={handleSearchPage}
+            data-tooltip="Find music recommendations based on your mood and preferences!"
           >
-            <i className="fas fa-search">Find Music Recommendations</i>
+            <i className="fas fa-search">More Music</i>
           </button>
         </div>
       </div>
