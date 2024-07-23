@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import './ModalResult.css';
+import React, { useState, useEffect } from "react";
+import "./ModalResult.css";
 
 const ModalResult = ({ show, handleClose, handleContinue }) => {
   const [loading, setLoading] = useState(true);
@@ -32,8 +32,10 @@ const ModalResult = ({ show, handleClose, handleContinue }) => {
               View my match!
             </button>
           </>
-        )}
-        <button className="close" onClick={handleClose}>Close</button>
+        )};
+        <button className="close" onClick={handleClose}>
+          Close
+        </button>
       </div>
     </div>
   );
