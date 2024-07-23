@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./MoodBoard.css";
 
 const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
 
 const MoodBoard = () => {
+  const navigate = useNavigate();
   const { userId } = useParams();
   const [mood, setMood] = useState("");
   const [songs, setSongs] = useState([]);
@@ -38,9 +39,13 @@ const MoodBoard = () => {
     return <div className="moodboard-container">Error: {error}</div>;
   }
 
+  const handleBackToHome = () => {
+    navigate("/home/:userId");
+  };
+
   return (
     <div className="moodboard-container">
-      <h2>You seem {mood}</h2>
+      <h2>Mood: {mood}!</h2>
       <h3>These rhythms should match your vibe!</h3>
       <ul>
         {songs.map((song) => (
@@ -52,6 +57,9 @@ const MoodBoard = () => {
           </li>
         ))}
       </ul>
+      <button className="back-to-home" onClick={handleBackToHome}>
+        Close
+      </button>
     </div>
   );
 };

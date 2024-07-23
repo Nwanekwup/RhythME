@@ -271,24 +271,54 @@ app.post("/verify-email", async (req, res) => {
   }
 });
 
+const moodIntegers = {
+  Anxious: 1,
+  Happy: 2,
+  Motivated: 3,
+  Calm: 4,
+  Playful: 5,
+  Energetic: 6,
+  Confident: 7,
+  Creative: 8,
+  Sad: 9,
+  Stressed: 10,
+  Romantic: 11,
+};
+
+const calculateDistance = (answers, moodScores) => {
+  const distances = {};
+
+  Object.keys(moodScores).forEach((mood) => {
+    distances[mood] = Math.abs(moodScores[mood] - answers.reduce((a, b) => a + b, 0));
+  });
+
+  return Object.keys(distances).reduce((a, b) => (distances[a] < distances[b] ? a : b));
+};
+
 app.post("/submit-answers", async (req, res) => {
   try {
-    const { userId, answers, questions, mood } = req.body;
-    console.log("Received Data:", { userId, answers, questions, mood });
-    const user = await prisma.user.findUnique({ where: { id: +userId } });
+    const { userId, answers, questions } = req.body;
+    console.log("Received Data:", { userId, answers, questions });
+
+    const user = await prisma.user.findUnique({ where: { id: parseInt(userId, 10) } });
     if (!user) {
       console.error("User not found:", userId);
       return res.status(404).json({ error: "User not found" });
     }
+
+    const filteredData = answers.map((answer, index) => ({
+      question: questions[index],
+      answer: `${answer}`,
+    })).filter(data => data.question !== null && data.question !== undefined);
+
+    const mood = calculateDistance(answers, moodIntegers);
+
     const userAnswer = await prisma.userAnswer.create({
       data: {
         userId: user.id,
         mood,
         answers: {
-          create: answers.map((answer, index) => ({
-            question: questions[index],
-            answer: `${answer}`,
-          })),
+          create: filteredData,
         },
       },
     });
@@ -298,6 +328,7 @@ app.post("/submit-answers", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 app.get("/search", async (req, res) => {
   const { query, moods } = req.query;

@@ -46,9 +46,9 @@ const questions = [
     mood: "Creative",
   },
   {
-    question: "I feel focused most days",
+    question: "I sad Sad most days",
     answers: [5, 4, 3, 2, 1],
-    mood: "Focused",
+    mood: "Sad",
   },
   {
     question: "I feel stressed most days",
@@ -62,10 +62,24 @@ const questions = [
   },
 ];
 
-// define moods and their corresponding score
-const determineMood = (answers) => {
-  const moodScores = {}
+const moodIntegers = {
+  Anxious: 1,
+  Happy: 2,
+  Motivated: 3,
+  Calm: 4,
+  Playful: 5,
+  Energetic: 6,
+  Confident: 7,
+  Creative: 8,
+  Sad: 9,
+  Stressed: 10,
+  Romantic: 11,
+};
 
+const determineMood = (answers, selectedMood) => {
+  const moodScores = {};
+
+  // Initialize mood scores
   questions.forEach((question) => {
     moodScores[question.mood] = 0;
   });
@@ -73,16 +87,29 @@ const determineMood = (answers) => {
   // Map the questions to moods and update the scores
   answers.forEach((answer, index) => {
     const question = questions[index];
-    moodScores[question.mood] += answer;
+    if (question && answer !== null && answer !== undefined) {
+      moodScores[question.mood] += answer;
+    }
   });
 
-  //Determine the predominant mood
-  const predominantMood = Object.keys(moodScores).reduce((a, b) =>
-    moodScores[a] > moodScores[b] ? a : b
-  );
+  // Calculate the distance between mood scores and the selected mood
+  const selectedMoodInteger = moodIntegers[selectedMood];
+  const moodDistances = Object.keys(moodScores).map((mood) => {
+    const score = moodScores[mood];
+    const moodInteger = moodIntegers[mood];
+    return {
+      mood,
+      distance: Math.abs(score - selectedMoodInteger),
+    };
+  });
+
+  // Find the mood with the smallest distance
+  const predominantMood = moodDistances.reduce((prev, curr) =>
+    prev.distance < curr.distance ? prev : curr
+  ).mood;
+
   return predominantMood;
 };
-
 const TakeQuiz = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
@@ -90,7 +117,7 @@ const TakeQuiz = () => {
   const [answers, setAnswers] = useState([]);
   const [answeredQuestions, setQuestion] = useState([]);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [showModalResult, setShowModalResult] = useState(false)
+  const [showModalResult, setShowModalResult] = useState(false);
 
   const handleNextClick = () => {
     setCurrentQuestion(currentQuestion + 1);
@@ -123,11 +150,14 @@ const TakeQuiz = () => {
       return;
     }
 
+    const selectedMood = questions[currentQuestion].mood;
+    const mood = determineMood(answers, selectedMood);
+
     const answersData = {
       userId: userId,
       answers: answers,
       questions: answeredQuestions,
-      mood: determineMood(answers),
+      mood: mood,
     };
     console.log("Sending data:", answersData);
     try {
@@ -159,6 +189,10 @@ const TakeQuiz = () => {
   const handleContinue = () => {
     setShowModalResult(false);
     navigate(`/moodboard/${userId}`);
+  };
+
+  const handleBackToHome = () => {
+    navigate("/home/:userId");
   };
 
   return (
@@ -203,7 +237,14 @@ const TakeQuiz = () => {
           </button>
         )}
       </div>
-      <ModalResult show={showModalResult} handleClose={handleModalResultClose} handleContinue={handleContinue}/>
+      <ModalResult
+        show={showModalResult}
+        handleClose={handleModalResultClose}
+        handleContinue={handleContinue}
+      />
+      <button className="back-to-home" onClick={handleBackToHome}>
+        Close
+      </button>
     </div>
   );
 };
