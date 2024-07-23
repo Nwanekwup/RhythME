@@ -9,7 +9,8 @@ const nodemailer = require("nodemailer");
 const querystring = require("querystring");
 const axios = require("axios");
 const getSpotifyAccessToken = require("./spotify");
-const getLyrics = require('./musixmatch');
+const getLyrics = require("./musixmatch");
+const determineMoodFromLyrics = require('./moodAnalyzer');
 const app = express();
 
 const allowedOrigins = [process.env.FRONTEND_URL];
@@ -49,7 +50,7 @@ app.get("/login", (req, res) => {
   const authUrl =
     "https://accounts.spotify.com/authorize?" +
     querystring.stringify({
-      response_type: 'code',
+      response_type: "code",
       client_id: clientId,
       scope: scope,
       redirect_uri: redirectUri,
@@ -67,7 +68,9 @@ app.get("/callback", async (req, res) => {
       grant_type: "authorization_code",
     },
     headers: {
-      Authorization: "Basic " + (Buffer.from(clientId + ":" + clientSecret).toString("base64"))
+      Authorization:
+        "Basic " +
+        Buffer.from(clientId + ":" + clientSecret).toString("base64"),
     },
     json: true,
   };
@@ -88,11 +91,13 @@ app.get("/callback", async (req, res) => {
   }
 });
 
-app.get('/lyrics', async (req, res) => {
+app.get("/lyrics", async (req, res) => {
   const { trackName, artistName } = req.query;
 
   if (!trackName || !artistName) {
-    return res.status(400).json({ error: 'trackName and artistName are required' });
+    return res
+      .status(400)
+      .json({ error: "trackName and artistName are required" });
   }
 
   try {
@@ -100,10 +105,50 @@ app.get('/lyrics', async (req, res) => {
     if (lyrics) {
       res.json({ lyrics });
     } else {
-      res.status(404).json({ error: 'Lyrics not found' });
+      res.status(404).json({ error: "Lyrics not found" });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/add-song", async (req, res) => {
+  const { title, artist } = req.body;
+
+  try {
+    const lyrics = await getLyrics(title, artist);
+    if (!lyrics) {
+      return res.status(404).json({ error: "Lyrics not found" });
+    }
+
+    const mood = determineMoodFromLyrics(lyrics);
+    const song = await prisma.song.create({
+      data: {
+        title,
+        artist,
+        lyrics,
+        mood,
+      },
+    });
+
+    res.status(201).json({ song });
+  } catch (error) {
+    console.error("Error adding song:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/recommendations", async (req, res) => {
+  const { mood } = req.query;
+
+  try {
+    const songs = await prisma.song.findMany({
+      where: { mood },
+    });
+    res.json(songs);
+  } catch (error) {
+    console.error("Error fetching recommendations:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
