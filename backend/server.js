@@ -298,6 +298,20 @@ app.get('/search', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+app.get('/moods', async (req, res) => {
+  try {
+    const moods = await prisma.song.findMany({
+      distinct: ['mood'],
+      select: { mood: true },
+    });
+    res.json(moods.map(m => m.mood));
+  } catch (error) {
+    console.error('Error fetching moods:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

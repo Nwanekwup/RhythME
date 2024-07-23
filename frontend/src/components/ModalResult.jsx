@@ -32,7 +32,7 @@ const ModalResult = ({ show, handleClose, handleContinue }) => {
               View my match!
             </button>
           </>
-        )};
+        )}
         <button className="close" onClick={handleClose}>
           Close
         </button>

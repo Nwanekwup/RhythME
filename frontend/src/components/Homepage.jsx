@@ -3,6 +3,7 @@ import '../App.css';
 import Header from "./Header"
 import { useNavigate, useParams } from "react-router-dom";
 import "./Homepage.css";
+import Search from './Search';
 
 
 function Homepage() {
@@ -44,7 +45,6 @@ function Homepage() {
             <i className="fas fa-search">Find Music Recommendations</i>
           </button>
         </div>
-        <Search />
       </div>
     </div>
   );
