@@ -277,11 +277,27 @@ app.post("/submit-answers", async (req, res) => {
   }
 });
 
-app.get('/search', async (req,res) => {
-  const { query, mood, operator } = req.query;
+app.get('/search', async (req, res) => {
+  const { query } = req.query;
 
+  try {
+    const songs = await prisma.song.findMany({
+      where: {
+        OR: [
+          { title: { contains: query, mode: 'insensitive' } },
+          { artist: { contains: query, mode: 'insensitive' } },
+          { lyrics: { contains: query, mode: 'insensitive' } },
+          { mood: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+    });
+
+    res.json(songs);
+  } catch (error) {
+    console.error('Error fetching search results:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
