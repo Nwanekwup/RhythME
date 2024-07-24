@@ -41,7 +41,7 @@ const MoodBoard = () => {
   return (
     <div className="moodboard-container">
       <h2>You seem {mood}</h2>
-      <h3>These songs should match your vibe!</h3>
+      <h3>These rhythms should match your vibe!</h3>
       <ul>
         {songs.map((song) => (
           <li key={song.id}>
