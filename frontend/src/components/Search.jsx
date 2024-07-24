@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Search.css";
+import Header from "./Header";
 
 const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
 
 const Search = () => {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [moods, setMoods] = useState([]);
@@ -44,7 +47,7 @@ const Search = () => {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
     }
   };
@@ -55,8 +58,13 @@ const Search = () => {
     );
   };
 
+  const handleBackToHome = () => {
+    navigate("/home/:userId");
+  };
+
   return (
     <div className="search-container">
+        <Header />
       <header>
         <div className="search-bar">
           <input
@@ -91,6 +99,10 @@ const Search = () => {
           </div>
         ))}
       </div>
+
+      <button classname="back-to-home" onClick={handleBackToHome}>
+        Close
+      </button>
     </div>
   );
 };
