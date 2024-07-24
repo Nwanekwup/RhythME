@@ -2,7 +2,6 @@ const moodWords = require('./moodWords');
 
 const determineMoodFromLyrics = (lyrics) => {
   const moodScores = {};
-
   Object.keys(moodWords).forEach((mood) => {
     moodScores[mood] = 0;
     moodWords[mood].forEach((word) => {
@@ -11,12 +10,11 @@ const determineMoodFromLyrics = (lyrics) => {
       moodScores[mood] += matches ? matches.length : 0;
     });
   });
-
-  const predominantMood = Object.keys(moodScores).reduce((a, b) =>
-    moodScores[a] > moodScores[b] ? a : b
-  );
-
-  return predominantMood;
+  return moodScores;
 };
 
-module.exports = determineMoodFromLyrics;
+const determineMood = (moodScores) => {
+  return Object.keys(moodScores).reduce((a, b) => (moodScores[a] > moodScores[b] ? a : b));
+};
+
+module.exports = { determineMoodFromLyrics, determineMood };

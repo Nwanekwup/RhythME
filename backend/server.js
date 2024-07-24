@@ -10,7 +10,9 @@ const querystring = require("querystring");
 const axios = require("axios");
 const getSpotifyAccessToken = require("./spotify");
 const getLyrics = require("./musixmatch");
-const determineMoodFromLyrics = require("./moodAnalyzer");
+const { calculateUserMoodScores } = require("./calculateUserMoodScores");
+const { determineMoodFromLyrics, calculateMoodScores, determineMood } = require("./moodAnalyzer");
+// const calculateDistance = require("./calculateDistance"); 
 const app = express();
 
 const allowedOrigins = [process.env.FRONTEND_URL];
@@ -121,13 +123,16 @@ app.post("/add-song", async (req, res) => {
       return res.status(404).json({ error: "Lyrics not found" });
     }
 
-    const mood = determineMoodFromLyrics(lyrics);
+    const songMoodScores = determineMoodFromLyrics(lyrics);
+    const mood = Object.keys(songMoodScores).reduce((a, b) => songMoodScores[a] > songMoodScores[b] ? a : b);
+
     const song = await prisma.song.create({
       data: {
         title,
         artist,
         lyrics,
         mood,
+        songMoodScores: songMoodScores,
       },
     });
 
@@ -271,33 +276,26 @@ app.post("/verify-email", async (req, res) => {
   }
 });
 
-const moodIntegers = {
-  Anxious: 1,
-  Happy: 2,
-  Motivated: 3,
-  Calm: 4,
-  Playful: 5,
-  Energetic: 6,
-  Confident: 7,
-  Creative: 8,
-  Sad: 9,
-  Stressed: 10,
-  Romantic: 11,
-};
-
 app.post("/submit-answers", async (req, res) => {
   try {
-    const { userId, answers, questions, mood } = req.body;
-    console.log("Received Data:", { userId, answers, questions, mood });
-    const user = await prisma.user.findUnique({ where: { id: +userId } });
+    const { userId, answers, questions } = req.body;
+    const user = await prisma.user.findUnique({ where: { id: parseInt(userId, 10) } });
     if (!user) {
-      console.error("User not found:", userId);
       return res.status(404).json({ error: "User not found" });
     }
+
+    const userMoodScores = calculateUserMoodScores(answers, questions);
+    const predominantMood = determineMood(userMoodScores);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { userMoodScores: userMoodScores },
+    });
+
     const userAnswer = await prisma.userAnswer.create({
       data: {
         userId: user.id,
-        mood,
+        mood: predominantMood, 
         answers: {
           create: answers.map((answer, index) => ({
             question: questions[index],
@@ -306,6 +304,7 @@ app.post("/submit-answers", async (req, res) => {
         },
       },
     });
+
     res.status(201).json({ message: "Answers submitted successfully" });
   } catch (error) {
     console.error("Internal Server Error", error);
