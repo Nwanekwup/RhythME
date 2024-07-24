@@ -71,6 +71,10 @@
   color: #fff;
 }
 
+.mood-button:hover {
+  color: #fff;
+}
+
 .results {
   width: 100%;
   max-width: 600px;
@@ -85,8 +89,9 @@
   margin: 10px 0;
   border-radius: 5px;
   display: flex;
-  background-color: #cfbebea6;
+  background-color: #5f3b54;
   flex-direction: column;
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .song-title {
@@ -99,4 +104,9 @@
   margin: 0;
   font-size: 0.9em;
   color: #141414;
+}
+
+.song:hover {
+  background-color: #6f3c73;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
