@@ -13,7 +13,7 @@ const questions = [
   {
     question: "I feel happy most days",
     answers: [5, 4, 3, 2, 1],
-    mood: "Happy",
+    mood: "Happy", 
   },
   {
     question: "I feel motivated most days",
@@ -76,10 +76,10 @@ const moodIntegers = {
   Romantic: 11,
 };
 
-const determineMood = (answers, selectedMood) => {
-  const moodScores = {};
+// define moods and their corresponding score
+const determineMood = (answers) => {
+  const moodScores = {}
 
-  // Initialize mood scores
   questions.forEach((question) => {
     moodScores[question.mood] = 0;
   });
@@ -87,29 +87,16 @@ const determineMood = (answers, selectedMood) => {
   // Map the questions to moods and update the scores
   answers.forEach((answer, index) => {
     const question = questions[index];
-    if (question && answer !== null && answer !== undefined) {
-      moodScores[question.mood] += answer;
-    }
+    moodScores[question.mood] += answer;
   });
 
-  // Calculate the distance between mood scores and the selected mood
-  const selectedMoodInteger = moodIntegers[selectedMood];
-  const moodDistances = Object.keys(moodScores).map((mood) => {
-    const score = moodScores[mood];
-    const moodInteger = moodIntegers[mood];
-    return {
-      mood,
-      distance: Math.abs(score - selectedMoodInteger),
-    };
-  });
-
-  // Find the mood with the smallest distance
-  const predominantMood = moodDistances.reduce((prev, curr) =>
-    prev.distance < curr.distance ? prev : curr
-  ).mood;
-
+  //Determine the predominant mood
+  const predominantMood = Object.keys(moodScores).reduce((a, b) =>
+    moodScores[a] > moodScores[b] ? a : b
+  );
   return predominantMood;
 };
+
 const TakeQuiz = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
@@ -150,14 +137,11 @@ const TakeQuiz = () => {
       return;
     }
 
-    const selectedMood = questions[currentQuestion].mood;
-    const mood = determineMood(answers, selectedMood);
-
     const answersData = {
       userId: userId,
       answers: answers,
       questions: answeredQuestions,
-      mood: mood,
+      mood: determineMood(answers),
     };
     console.log("Sending data:", answersData);
     try {
