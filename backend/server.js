@@ -285,40 +285,24 @@ const moodIntegers = {
   Romantic: 11,
 };
 
-const calculateDistance = (answers, moodScores) => {
-  const distances = {};
-
-  Object.keys(moodScores).forEach((mood) => {
-    distances[mood] = Math.abs(moodScores[mood] - answers.reduce((a, b) => a + b, 0));
-  });
-
-  return Object.keys(distances).reduce((a, b) => (distances[a] < distances[b] ? a : b));
-};
-
 app.post("/submit-answers", async (req, res) => {
   try {
-    const { userId, answers, questions } = req.body;
-    console.log("Received Data:", { userId, answers, questions });
-
-    const user = await prisma.user.findUnique({ where: { id: parseInt(userId, 10) } });
+    const { userId, answers, questions, mood } = req.body;
+    console.log("Received Data:", { userId, answers, questions, mood });
+    const user = await prisma.user.findUnique({ where: { id: +userId } });
     if (!user) {
       console.error("User not found:", userId);
       return res.status(404).json({ error: "User not found" });
     }
-
-    const filteredData = answers.map((answer, index) => ({
-      question: questions[index],
-      answer: `${answer}`,
-    })).filter(data => data.question !== null && data.question !== undefined);
-
-    const mood = calculateDistance(answers, moodIntegers);
-
     const userAnswer = await prisma.userAnswer.create({
       data: {
         userId: user.id,
         mood,
         answers: {
-          create: filteredData,
+          create: answers.map((answer, index) => ({
+            question: questions[index],
+            answer: `${answer}`,
+          })),
         },
       },
     });
@@ -328,7 +312,6 @@ app.post("/submit-answers", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 app.get("/search", async (req, res) => {
   const { query, moods } = req.query;
