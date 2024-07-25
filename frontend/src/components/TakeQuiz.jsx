@@ -13,7 +13,7 @@ const questions = [
   {
     question: "I feel happy most days",
     answers: [5, 4, 3, 2, 1],
-    mood: "Happy", 
+    mood: "Happy",
   },
   {
     question: "I feel motivated most days",
@@ -115,12 +115,12 @@ const TakeQuiz = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (answers.length !== questions.length) {
       alert("Please answer all the questions before submitting.");
       return;
     }
-  
+
     const { predominantMood, moodScores } = determineMood(answers);
     const answersData = {
       userId,
@@ -135,7 +135,7 @@ const TakeQuiz = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(answersData),
       });
-  
+
       if (response.ok) {
         setShowModalResult(true);
       } else {
@@ -159,7 +159,7 @@ const TakeQuiz = () => {
   };
 
   const handleBackToHome = () => {
-    navigate("/home/:userId");
+    navigate(`/home/${userId}`);
   };
 
   return (
