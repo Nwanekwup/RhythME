@@ -12,6 +12,7 @@ const getSpotifyAccessToken = require("./spotify");
 const getLyrics = require("./musixmatch");
 const { calculateUserMoodScores } = require("./calculateUserMoodScores");
 const { determineMoodFromLyrics, calculateMoodScores, determineMood } = require("./moodAnalyzer"); 
+const calculateDistance = require("./calculateDistance");
 const app = express();
 
 const allowedOrigins = [process.env.FRONTEND_URL];
@@ -290,7 +291,7 @@ app.post("/submit-answers", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const userMoodScores = calculateUserMoodScores(answers, questions);
+    const userMoodScores = calculateUserMoodScores(answers);
     const predominantMood = determineMood(userMoodScores);
 
     await prisma.user.update({
@@ -319,10 +320,12 @@ app.post("/submit-answers", async (req, res) => {
 });
 
 app.get("/search", async (req, res) => {
-  const { query, moods } = req.query;
+  const { query, moods, artists, excludeMoods } = req.query;
 
   try {
     const moodArray = moods ? moods.split(",") : [];
+    const artistArray = artists ? artists.split(",") : [];
+    const excludeMoodArray = excludeMoods ? excludeMoods.split(",") : [];
     const searchConditions = [];
 
     if (query) {
@@ -335,12 +338,16 @@ app.get("/search", async (req, res) => {
       });
     }
 
+    if (artistArray.length > 0) {
+      searchConditions.push({ artist: { in: artistArray } });
+    }
+
     if (moodArray.length > 0) {
-      searchConditions.push({
-        OR: moodArray.map((mood) => ({
-          mood: { equals: mood, mode: "insensitive" },
-        })),
-      });
+      searchConditions.push({ mood: { in: moodArray } });
+    }
+
+    if (excludeMoodArray.length > 0) {
+      searchConditions.push({ mood: { notIn: excludeMoodArray } });
     }
 
     const songs = await prisma.song.findMany({
@@ -349,9 +356,78 @@ app.get("/search", async (req, res) => {
       },
     });
 
-    res.json(songs);
+    // Shuffle the results
+    const shuffledSongs = songs.sort(() => Math.random() - 0.5);
+
+    res.json(shuffledSongs);
   } catch (error) {
     console.error("Error fetching search results:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/personalized-search", async (req, res) => {
+  const { userId, query, moods, artists, excludeMoods } = req.query;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: parseInt(userId, 10) } });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userMoodScores = user.userMoodScores;
+
+    const searchConditions = [];
+
+    if (query) {
+      searchConditions.push({
+        OR: [
+          { title: { contains: query, mode: "insensitive" } },
+          { artist: { contains: query, mode: "insensitive" } },
+          { lyrics: { contains: query, mode: "insensitive" } },
+        ],
+      });
+    }
+
+    if (artists) {
+      searchConditions.push({ artist: { in: artists.split(",") } });
+    }
+
+    if (moods) {
+      searchConditions.push({ mood: { in: moods.split(",") } });
+    }
+
+    if (excludeMoods) {
+      searchConditions.push({ mood: { notIn: excludeMoods.split(",") } });
+    }
+
+    const songs = await prisma.song.findMany({
+      where: {
+        AND: searchConditions,
+      },
+    });
+
+    const rankedSongs = songs.map(song => {
+      const distance = calculateDistance(userMoodScores, song.songMoodScores);
+      return { ...song, distance };
+    }).sort((a, b) => a.distance - b.distance);
+
+    res.json(rankedSongs);
+  } catch (error) {
+    console.error("Error fetching personalized search results:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/artists", async (req, res) => {
+  try {
+    const artists = await prisma.song.findMany({
+      distinct: ["artist"],
+      select: { artist: true },
+    });
+    res.json(artists.map((a) => a.artist));
+  } catch (error) {
+    console.error("Error fetching artists:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

@@ -57,6 +57,11 @@ const calculateUserMoodScores = (answers) => {
     userMoodScores[question.mood] += answer;
   });
 
+  // Normalize scores by dividing by 5
+  Object.keys(userMoodScores).forEach((mood) => {
+    userMoodScores[mood] /= 5;
+  });
+
   return userMoodScores;
 };
 
