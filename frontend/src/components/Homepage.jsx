@@ -1,4 +1,4 @@
-import React, { useEffect }from "react";
+import React, { useEffect } from "react";
 import "../App.css";
 import Header from "./Header";
 import { useNavigate, useParams } from "react-router-dom";
@@ -9,7 +9,7 @@ function Homepage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.querySelector('.homepage-container').style.opacity = '1';
+    document.querySelector(".homepage-container").style.opacity = "1";
   }, []);
 
   const handleLogOut = () => {
@@ -17,7 +17,7 @@ function Homepage() {
   };
 
   const handleSearchPage = () => {
-    navigate("/search");
+    navigate(`/search`);
   };
 
   return (
