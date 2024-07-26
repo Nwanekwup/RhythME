@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./MoodBoard.css";
+import Header from "./Header";
 
 const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
 
@@ -40,12 +41,13 @@ const MoodBoard = () => {
   }
 
   const handleBackToHome = () => {
-    navigate("/home/:userId");
+    navigate(`/home/${userId}`);
   };
 
   return (
     <div className="moodboard-container">
-      <h2>Mood: {mood}!</h2>
+        <Header />
+      <h2>MoodBoard: Feeling {mood}?</h2>
       <h3>These rhythms should match your vibe!</h3>
       <ul>
         {songs.map((song) => (

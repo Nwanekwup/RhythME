@@ -59,7 +59,7 @@ const Search = () => {
   };
 
   const handleBackToHome = () => {
-    navigate("/home/:userId");
+    navigate(`/home/${userId}`);
   };
 
   return (

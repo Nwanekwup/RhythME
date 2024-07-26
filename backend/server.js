@@ -11,8 +11,7 @@ const axios = require("axios");
 const getSpotifyAccessToken = require("./spotify");
 const getLyrics = require("./musixmatch");
 const { calculateUserMoodScores } = require("./calculateUserMoodScores");
-const { determineMoodFromLyrics, calculateMoodScores, determineMood } = require("./moodAnalyzer");
-// const calculateDistance = require("./calculateDistance"); 
+const { determineMoodFromLyrics, calculateMoodScores, determineMood } = require("./moodAnalyzer"); 
 const app = express();
 
 const allowedOrigins = [process.env.FRONTEND_URL];
@@ -90,91 +89,6 @@ app.get("/callback", async (req, res) => {
     );
   } catch (error) {
     res.status(500).json({ error: "Failed to authenticate with Spotify" });
-  }
-});
-
-app.get("/lyrics", async (req, res) => {
-  const { trackName, artistName } = req.query;
-
-  if (!trackName || !artistName) {
-    return res
-      .status(400)
-      .json({ error: "trackName and artistName are required" });
-  }
-
-  try {
-    const lyrics = await getLyrics(trackName, artistName);
-    if (lyrics) {
-      res.json({ lyrics });
-    } else {
-      res.status(404).json({ error: "Lyrics not found" });
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-app.post("/add-song", async (req, res) => {
-  const { title, artist } = req.body;
-
-  try {
-    const lyrics = await getLyrics(title, artist);
-    if (!lyrics) {
-      return res.status(404).json({ error: "Lyrics not found" });
-    }
-
-    const songMoodScores = determineMoodFromLyrics(lyrics);
-    const mood = Object.keys(songMoodScores).reduce((a, b) => songMoodScores[a] > songMoodScores[b] ? a : b);
-
-    const song = await prisma.song.create({
-      data: {
-        title,
-        artist,
-        lyrics,
-        mood,
-        songMoodScores: songMoodScores,
-      },
-    });
-
-    res.status(201).json({ song });
-  } catch (error) {
-    console.error("Error adding song:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-app.get("/recommendations", async (req, res) => {
-  const { userId } = req.query;
-
-  try {
-    console.log(`Fetching recommendations for userId: ${userId}`);
-
-    const userAnswer = await prisma.userAnswer.findFirst({
-      where: { userId: +userId },
-      orderBy: { createdAt: "desc" },
-    });
-
-    if (!userAnswer) {
-      console.error(`User answer not found for userId: ${userId}`);
-      return res.status(404).json({ error: "User answer not found" });
-    }
-
-    const mood = userAnswer.mood;
-    console.log(`Mood for userId ${userId}: ${mood}`);
-
-    const songs = await prisma.song.findMany({
-      where: { mood },
-    });
-
-    if (!songs.length) {
-      console.error(`No songs found for mood: ${mood}`);
-      return res.status(404).json({ error: "No songs found for this mood" });
-    }
-
-    res.json({ mood, songs });
-  } catch (error) {
-    console.error("Error fetching recommendations:", error);
-    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -273,6 +187,98 @@ app.post("/verify-email", async (req, res) => {
     res.status(200).json({ message: "Email verified successfully." });
   } catch (error) {
     res.status(400).json({ error: "Invalid or expired token." });
+  }
+});
+
+app.get("/lyrics", async (req, res) => {
+  const { trackName, artistName } = req.query;
+
+  if (!trackName || !artistName) {
+    return res
+      .status(400)
+      .json({ error: "trackName and artistName are required" });
+  }
+  try {
+    const lyrics = await getLyrics(trackName, artistName);
+    if (lyrics) {
+      res.json({ lyrics });
+    } else {
+      res.status(404).json({ error: "Lyrics not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/add-song", async (req, res) => {
+  const { title, artist } = req.body;
+
+  try {
+    const lyrics = await getLyrics(title, artist);
+    if (!lyrics) {
+      return res.status(404).json({ error: "Lyrics not found" });
+    }
+    const songMoodScores = determineMoodFromLyrics(lyrics);
+    const mood = Object.keys(songMoodScores).reduce((a, b) => songMoodScores[a] > songMoodScores[b] ? a : b);
+
+    const song = await prisma.song.create({
+      data: {
+        title,
+        artist,
+        lyrics,
+        mood,
+        songMoodScores: songMoodScores,
+      },
+    });
+
+    res.status(201).json({ song });
+  } catch (error) {
+    console.error("Error adding song:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+const shuffleArray = (array) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
+app.get("/recommendations", async (req, res) => {
+  const { userId } = req.query;
+
+  try {
+    console.log(`Fetching recommendations for userId: ${userId}`);
+
+    const userAnswer = await prisma.userAnswer.findFirst({
+      where: { userId: +userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!userAnswer) {
+      console.error(`User answer not found for userId: ${userId}`);
+      return res.status(404).json({ error: "User answer not found" });
+    }
+
+    const mood = userAnswer.mood;
+    console.log(`Mood for userId ${userId}: ${mood}`);
+
+    const songs = await prisma.song.findMany({
+      where: { mood },
+    });
+
+    if (!songs.length) {
+      console.error(`No songs found for mood: ${mood}`);
+      return res.status(404).json({ error: "No songs found for this mood" });
+    }
+
+    const shuffledSongs = shuffleArray(songs);
+    res.json({ mood, songs });
+  } catch (error) {
+    console.error("Error fetching recommendations:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
