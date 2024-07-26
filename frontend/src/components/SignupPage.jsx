@@ -38,7 +38,7 @@ const SignupPage = () => {
 
       if (response.ok) {
         alert(
-          "User signed up succefully. Please check your email and verify using the link provided"
+          "User signed up successfully. Please check your email and verify using the link provided"
         );
         navigate("/login");
       } else {

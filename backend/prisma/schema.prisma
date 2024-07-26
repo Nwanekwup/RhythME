@@ -14,20 +14,22 @@ datasource db {
 }
 
 model User {
-  id         Int          @id @default(autoincrement())
-  username   String       @unique
-  email      String       @unique
-  password   String
-  UserAnswer UserAnswer[]
+  id              Int          @id @default(autoincrement())
+  username        String       @unique
+  email           String       @unique
+  password        String
+  userMoodScores  Json         @default("{}")
+  isVerified      Boolean      @default(false)
+  UserAnswer      UserAnswer[]
 }
 
 model UserAnswer {
-  id      Int                 @id @default(autoincrement())
-  user    User                @relation(fields: [userId], references: [id])
+  id         Int                 @id @default(autoincrement())
+  user       User                @relation(fields: [userId], references: [id])
   createdAt  DateTime @default(now())
-  answers QuestionAndAnswer[]
-  userId  Int
-  mood    String
+  answers    QuestionAndAnswer[]
+  userId     Int
+  mood       String
 }
 
 model QuestionAndAnswer {
@@ -39,9 +41,10 @@ model QuestionAndAnswer {
 }
 
 model Song {
-  id      Int      @id @default(autoincrement())
-  title   String
-  artist  String
-  mood    String
-  lyrics  String
+  id               Int      @id @default(autoincrement())
+  title            String
+  artist           String
+  mood             String
+  lyrics           String
+  songMoodScores   Json     @default("{}")
 }

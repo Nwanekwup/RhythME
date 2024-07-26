@@ -62,39 +62,23 @@ const questions = [
   },
 ];
 
-const moodIntegers = {
-  Anxious: 1,
-  Happy: 2,
-  Motivated: 3,
-  Calm: 4,
-  Playful: 5,
-  Energetic: 6,
-  Confident: 7,
-  Creative: 8,
-  Sad: 9,
-  Stressed: 10,
-  Romantic: 11,
-};
-
-// define moods and their corresponding score
 const determineMood = (answers) => {
-  const moodScores = {}
+  const moodScores = {};
 
   questions.forEach((question) => {
     moodScores[question.mood] = 0;
   });
 
-  // Map the questions to moods and update the scores
   answers.forEach((answer, index) => {
     const question = questions[index];
     moodScores[question.mood] += answer;
   });
 
-  //Determine the predominant mood
   const predominantMood = Object.keys(moodScores).reduce((a, b) =>
     moodScores[a] > moodScores[b] ? a : b
   );
-  return predominantMood;
+
+  return { predominantMood, moodScores };
 };
 
 const TakeQuiz = () => {
@@ -131,29 +115,28 @@ const TakeQuiz = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (answers.length !== questions.length) {
       alert("Please answer all the questions before submitting.");
       return;
     }
-
+  
+    const { predominantMood, moodScores } = determineMood(answers);
     const answersData = {
-      userId: userId,
-      answers: answers,
+      userId,
+      answers,
       questions: answeredQuestions,
-      mood: determineMood(answers),
+      mood: predominantMood,
+      moodScores,
     };
-    console.log("Sending data:", answersData);
     try {
       const response = await fetch(`${backendAddress}/submit-answers`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(answersData),
       });
+  
       if (response.ok) {
-        const data = await response.json();
         setShowModalResult(true);
       } else {
         const errorData = await response.json();
