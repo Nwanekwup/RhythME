@@ -170,7 +170,7 @@ const Search = () => {
         ))}
       </div>
       <button className="back-to-home" onClick={handleBackToHome}>
-        Close
+        Home
       </button>
     </div>
   );
