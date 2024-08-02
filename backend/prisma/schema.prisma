@@ -21,6 +21,7 @@ model User {
   userMoodScores  Json         @default("{}")
   isVerified      Boolean      @default(false)
   UserAnswer      UserAnswer[]
+  recommendedSongs RecommendedSong[]
 }
 
 model UserAnswer {
@@ -47,4 +48,14 @@ model Song {
   mood             String
   lyrics           String
   songMoodScores   Json     @default("{}")
+  spotifyId        String?
+  recommendedSongs RecommendedSong[]
+}
+
+model RecommendedSong {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id])
+  song   Song @relation(fields: [songId], references: [id])
+  userId Int
+  songId Int
 }
