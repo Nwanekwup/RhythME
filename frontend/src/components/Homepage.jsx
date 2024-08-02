@@ -5,9 +5,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./Homepage.css";
 
 const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
+
 function Homepage() {
   const { userId } = useParams();
   const [username, setUsername] = useState("");
+  const [profilePictureUrl, setProfilePictureUrl] = useState("/flowers.jpg"); // Relative path from the public folder
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,7 +34,15 @@ function Homepage() {
   };
 
   const handleSearchPage = () => {
-    navigate(`/search`);
+    navigate(`/search/${userId}`);
+  };
+
+  const handlePlaylistPage = () => {
+    navigate(`/playlist/${userId}`);
+  };
+
+  const toggleSettingsMenu = () => {
+    setShowSettingsMenu((prev) => !prev);
   };
 
   return (
@@ -40,7 +51,7 @@ function Homepage() {
       <div className="sidebar-container">
         <div className="profile-section">
           <div className="profile-icon-container">
-            <img src="profile.png" alt="Profile Icon" />
+            <img src={profilePictureUrl} alt="Profile Icon" />
           </div>
           <p className="username">{username}</p>
         </div>
@@ -48,19 +59,22 @@ function Homepage() {
           <button className="sidebar-btn" onClick={handleSearchPage}>
             <i className="fas fa-search"></i> Search
           </button>
-          <button className="sidebar-btn" >
+          <button className="sidebar-btn" onClick={handlePlaylistPage}>
             <i className="fas fa-list"></i> My Playlists
           </button>
-          <button className="sidebar-btn" >
-            <i className="fas fa-music"></i> Top Songs
-          </button>
-          <button className="sidebar-btn" >
-            <i className="fas fa-cog"></i> Settings
-          </button>
+          <div className="settings-container">
+            <button className="sidebar-btn" onClick={toggleSettingsMenu}>
+              <i className="fas fa-cog"></i> Settings
+            </button>
+            {showSettingsMenu && (
+              <div className="settings-menu">
+                <button className="log-out-btn" onClick={handleLogOut}>
+                  Log Out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-        <button className="log-out-btn" onClick={handleLogOut}>
-          Log Out
-        </button>
       </div>
       <div className="main-content-container">
         <div className="welcome-message">
@@ -87,21 +101,18 @@ function Homepage() {
         <div className="additional-sections">
           <div className="section">
             <h2>Recently Played</h2>
-      
           </div>
           <div className="section">
             <h2>Top Recommendations</h2>
-            
           </div>
           <div className="section">
             <h2>Discover New Music</h2>
-           
           </div>
         </div>
       </div>
       <div className="background-image"></div>
     </div>
   );
-};
+}
 
 export default Homepage;

@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import "./Header.css";
 
 const Header = () => {
-  const userId = useParams();
+  const { userId } = useParams();
   return (
     <header className="header">
       <h1>RhythME</h1>
@@ -13,7 +13,7 @@ const Header = () => {
             <Link to={`/home/${userId}`}>Home</Link>
           </li>
           <li>
-            <Link to={`/search`}>Music Recommendations</Link>
+            <Link to={`/search/${userId}`}>Music Recommendations</Link>
           </li>
         </ul>
       </nav>

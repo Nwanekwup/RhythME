@@ -13,6 +13,7 @@ const getLyrics = require("./musixmatch");
 const { calculateUserMoodScores } = require("./calculateUserMoodScores");
 const { determineMoodFromLyrics, calculateMoodScores, determineMood } = require("./moodAnalyzer"); 
 const calculateDistance = require("./calculateDistance");
+const { fetchSpotifyTrackId } = require('./spotifyService'); 
 const app = express();
 
 const allowedOrigins = [process.env.FRONTEND_URL];
@@ -232,8 +233,19 @@ app.post("/add-song", async (req, res) => {
     if (!lyrics) {
       return res.status(404).json({ error: "Lyrics not found" });
     }
+
     const songMoodScores = determineMoodFromLyrics(lyrics);
     const mood = Object.keys(songMoodScores).reduce((a, b) => songMoodScores[a] > songMoodScores[b] ? a : b);
+
+    const accessToken = await getSpotifyAccessToken();
+    if (!accessToken) {
+      return res.status(500).json({ error: "Failed to obtain Spotify access token" });
+    }
+
+    const spotifyId = await fetchSpotifyTrackId(accessToken, title, artist);
+    if (!spotifyId) {
+      console.warn("No Spotify ID found");
+    }
 
     const song = await prisma.song.create({
       data: {
@@ -242,6 +254,7 @@ app.post("/add-song", async (req, res) => {
         lyrics,
         mood,
         songMoodScores: songMoodScores,
+        spotifyId: spotifyId || null,  
       },
     });
 
@@ -252,6 +265,7 @@ app.post("/add-song", async (req, res) => {
   }
 });
 
+
 const shuffleArray = (array) => {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -260,38 +274,77 @@ const shuffleArray = (array) => {
   return array;
 };
 
-app.get("/recommendations", async (req, res) => {
+app.get('/recommendations', async (req, res) => {
   const { userId } = req.query;
 
   try {
-    console.log(`Fetching recommendations for userId: ${userId}`);
-
     const userAnswer = await prisma.userAnswer.findFirst({
       where: { userId: +userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     if (!userAnswer) {
-      console.error(`User answer not found for userId: ${userId}`);
-      return res.status(404).json({ error: "User answer not found" });
+      return res.status(404).json({ error: 'User answer not found' });
     }
 
     const mood = userAnswer.mood;
-    console.log(`Mood for userId ${userId}: ${mood}`);
 
     const songs = await prisma.song.findMany({
       where: { mood },
+      select: {
+        id: true,
+        title: true,
+        artist: true,
+        spotifyId: true,
+      },
     });
 
-    if (!songs.length) {
-      console.error(`No songs found for mood: ${mood}`);
-      return res.status(404).json({ error: "No songs found for this mood" });
+    for (let song of songs) {
+      if (!song.spotifyId) {
+        const spotifyId = await fetchSpotifyTrackId(song.title, song.artist);
+        if (spotifyId) {
+          await prisma.song.update({
+            where: { id: song.id },
+            data: { spotifyId },
+          });
+          song.spotifyId = spotifyId; 
+        }
+      }
     }
 
-    const shuffledSongs = shuffleArray(songs);
     res.json({ mood, songs });
   } catch (error) {
-    console.error("Error fetching recommendations:", error);
+    console.error('Error fetching recommendations:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get("/update-spotify-ids", async (req, res) => {
+  try {
+    const accessToken = await getSpotifyAccessToken();
+    if (!accessToken) {
+      return res.status(500).json({ error: "Failed to obtain Spotify access token" });
+    }
+
+    const songs = await prisma.song.findMany({
+      where: {
+        spotifyId: null,
+      },
+    });
+
+    for (const song of songs) {
+      const spotifyId = await fetchSpotifyTrackId(song.title, song.artist, accessToken);
+      if (spotifyId) {
+        await prisma.song.update({
+          where: { id: song.id },
+          data: { spotifyId },
+        });
+      }
+    }
+
+    res.json({ message: "Spotify IDs updated successfully" });
+  } catch (error) {
+    console.error("Error updating Spotify IDs:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -462,3 +515,28 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+app.get("/user/:userId/playlist", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const userAnswers = await prisma.userAnswer.findMany({
+      where: { userId: parseInt(userId, 10) },
+      include: { answers: true },
+    });
+
+    const songs = await prisma.song.findMany({
+      where: {
+        mood: {
+          in: userAnswers.map((answer) => answer.mood),
+        },
+      },
+    });
+
+    res.json(songs);
+  } catch (error) {
+    console.error("Error fetching playlist:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
