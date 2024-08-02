@@ -38,10 +38,26 @@ function Homepage() {
     <div className="homepage-container">
       <Header />
       <div className="sidebar-container">
-        <div className="profile-icon-container">
-          <img src="profile.png" alt="Profile Icon" />
+        <div className="profile-section">
+          <div className="profile-icon-container">
+            <img src="profile.png" alt="Profile Icon" />
+          </div>
+          <p className="username">{username}</p>
         </div>
-        <p className="username">{username}</p>
+        <div className="sidebar-options">
+          <button className="sidebar-btn" onClick={handleSearchPage}>
+            <i className="fas fa-search"></i> Search
+          </button>
+          <button className="sidebar-btn" >
+            <i className="fas fa-list"></i> My Playlists
+          </button>
+          <button className="sidebar-btn" >
+            <i className="fas fa-music"></i> Top Songs
+          </button>
+          <button className="sidebar-btn" >
+            <i className="fas fa-cog"></i> Settings
+          </button>
+        </div>
         <button className="log-out-btn" onClick={handleLogOut}>
           Log Out
         </button>
@@ -68,10 +84,24 @@ function Homepage() {
             <i className="fas fa-search">More Music</i>
           </button>
         </div>
+        <div className="additional-sections">
+          <div className="section">
+            <h2>Recently Played</h2>
+      
+          </div>
+          <div className="section">
+            <h2>Top Recommendations</h2>
+            
+          </div>
+          <div className="section">
+            <h2>Discover New Music</h2>
+           
+          </div>
+        </div>
       </div>
       <div className="background-image"></div>
     </div>
   );
-}
+};
 
 export default Homepage;
