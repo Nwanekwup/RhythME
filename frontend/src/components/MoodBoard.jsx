@@ -60,7 +60,7 @@ const MoodBoard = () => {
         ))}
       </ul>
       <button className="back-to-home" onClick={handleBackToHome}>
-        Close
+        Home
       </button>
     </div>
   );

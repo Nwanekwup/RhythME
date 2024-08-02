@@ -191,6 +191,19 @@ app.post("/verify-email", async (req, res) => {
   }
 });
 
+app.get('/user/:userId', async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(req.params.userId) },
+      select: { username: true} 
+    });
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.get("/lyrics", async (req, res) => {
   const { trackName, artistName } = req.query;
 

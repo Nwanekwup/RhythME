@@ -1,16 +1,30 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "../App.css";
 import Header from "./Header";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Homepage.css";
 
+const backendAddress = import.meta.env.VITE_BACKEND_ADDRESS;
 function Homepage() {
   const { userId } = useParams();
+  const [username, setUsername] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     document.querySelector(".homepage-container").style.opacity = "1";
-  }, []);
+
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${backendAddress}/user/${userId}`);
+        const data = await response.json();
+        setUsername(data.username);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
 
   const handleLogOut = () => {
     navigate("/");
@@ -25,8 +39,9 @@ function Homepage() {
       <Header />
       <div className="sidebar-container">
         <div className="profile-icon-container">
-          <img src="profile-icon.png" alt="Profile Icon" />
+          <img src="profile.png" alt="Profile Icon" />
         </div>
+        <p className="username">{username}</p>
         <button className="log-out-btn" onClick={handleLogOut}>
           Log Out
         </button>
